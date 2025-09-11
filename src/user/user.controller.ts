@@ -1,4 +1,4 @@
-import { Controller, Get, Post, UseGuards } from '@nestjs/common';
+import { Controller, Get, UseGuards } from '@nestjs/common';
 import { UserService } from './user.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
@@ -36,18 +36,6 @@ export class UserController {
         createdAt: userInfo.createdAt,
         updatedAt: userInfo.updatedAt,
       },
-    };
-  }
-
-  @Post('logout')
-  @ApiBearerAuth()
-  @ApiOperation({ summary: '로그아웃' })
-  @ApiResponse({ status: 200, description: '로그아웃 성공' })
-  logout() {
-    // 실제 로그아웃 로직은 AuthController에서 처리
-    return {
-      success: true,
-      message: 'Logged out successfully',
     };
   }
 }

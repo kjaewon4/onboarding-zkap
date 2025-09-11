@@ -23,7 +23,7 @@ export class UserEntity {
   @Column({ name: 'term_agreed', default: false })
   termAgreed: boolean;
 
-  @Column({ name: 'agreed_at', nullable: true })
+  @Column({ type: 'timestamp', name: 'agreed_at', nullable: true })
   agreedAt: Date | null;
 
   @CreateDateColumn({ name: 'created_at' })
