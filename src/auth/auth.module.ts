@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { Module, forwardRef } from '@nestjs/common';
 import { JwtModule } from '@nestjs/jwt';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { PassportModule } from '@nestjs/passport';
@@ -23,7 +23,7 @@ import authConfig from '../config/auth.config';
       inject: [ConfigService],
     }),
     PassportModule,
-    UserModule,
+    forwardRef(() => UserModule),
     RedisConfigModule,
   ],
   controllers: [AuthController],

@@ -36,6 +36,7 @@ export class GoogleAuthService {
       state,
       nonce,
       prompt: 'consent',
+      redirect_uri: this.configService.get<string>('auth.google.redirectUri'),
     });
   }
 

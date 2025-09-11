@@ -2,21 +2,11 @@ import { SnakeNamingStrategy } from 'typeorm-naming-strategies';
 import { TypeOrmModuleOptions } from '@nestjs/typeorm';
 import { ConfigService } from '@nestjs/config';
 import { DataSource, DataSourceOptions } from 'typeorm';
-import * as dotenv from 'dotenv';
-import * as path from 'path';
-
-const nodeEnv = process.env.NODE_ENV || 'development';
-const envFile =
-  nodeEnv === 'local'
-    ? '.env.local'
-    : nodeEnv === 'development'
-      ? '.env.development'
-      : '.env.production';
-dotenv.config({ path: path.resolve(process.cwd(), envFile) });
 
 export const databaseConfig = (
   configService?: ConfigService,
 ): TypeOrmModuleOptions & DataSourceOptions => {
+  const nodeEnv = process.env.NODE_ENV || 'development';
   const dbType =
     configService?.get<string>('db.type') || process.env.DB_TYPE || 'postgres';
 

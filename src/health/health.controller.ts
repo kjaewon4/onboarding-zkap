@@ -6,6 +6,8 @@ import {
   HealthIndicatorStatus,
 } from '@nestjs/terminus';
 import type { HealthCheckResult } from '@nestjs/terminus';
+import * as redis from 'redis';
+import { Public } from '../auth/decorators/public.decorator';
 
 @Controller('health')
 export class HealthController {
@@ -15,9 +17,10 @@ export class HealthController {
   ) {}
 
   @Get()
+  @Public()
   @HealthCheck()
   async check(): Promise<HealthCheckResult> {
-    return this.health.check([
+    const result = await this.health.check([
       // 기본 애플리케이션 상태 체크 - 가장 간단
       () => ({
         application: {
@@ -25,10 +28,20 @@ export class HealthController {
           timestamp: new Date().toISOString(),
         },
       }),
+      // 데이터베이스 연결 체크
+      () => this.db.pingCheck('database'),
+      // Redis 연결 체크
+      () => this.checkRedis(),
     ]);
+
+    // 헬스 체크 결과를 콘솔에 로그
+    console.log('📊 헬스 체크 결과:', JSON.stringify(result, null, 2));
+
+    return result;
   }
 
   @Get('liveness')
+  @Public()
   @HealthCheck()
   async liveness(): Promise<HealthCheckResult> {
     return this.health.check([
@@ -44,6 +57,7 @@ export class HealthController {
   }
 
   @Get('readiness')
+  @Public()
   @HealthCheck()
   async readiness(): Promise<HealthCheckResult> {
     return this.health.check([
@@ -65,12 +79,8 @@ export class HealthController {
   private async checkRedis() {
     try {
       // 실제 Redis 연결 체크
-      const redis = require('redis');
       const client = redis.createClient({
-        host: 'localhost',
-        port: 6379,
-        connect_timeout: 5000,
-        lazyConnect: true,
+        url: 'redis://localhost:6379',
       });
 
       await client.connect(); // 연결 시도

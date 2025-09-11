@@ -11,6 +11,6 @@ export default registerAs('auth', () => ({
     clientSecret: process.env.GOOGLE_CLIENT_SECRET,
     redirectUri:
       process.env.GOOGLE_REDIRECT_URI ||
-      'http://localhost:3000/api/auth/callback',
+      `http://localhost:${process.env.PORT || 3001}/api/auth/callback`,
   },
 }));
