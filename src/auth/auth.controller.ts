@@ -138,52 +138,6 @@ export class AuthController {
     }
   }
 
-  @Post('terms')
-  @Public()
-  @ApiOperation({ summary: '약관 동의 처리' })
-  @ApiResponse({ status: 200, description: '약관 동의 완료' })
-  @ApiResponse({ status: 400, description: '잘못된 요청' })
-  async agreeTerms(@Body('user_id') userId: string, @Res() res: Response) {
-    try {
-      if (!userId) {
-        throw new UnauthorizedException('User ID is required');
-      }
-
-      // 사용자 약관 동의 처리
-      await this.userService.agreeTerms(userId);
-
-      // JWT 토큰 발급
-      const { accessToken, refreshToken } =
-        await this.tokenService.generateTokenPair(userId);
-
-      // HttpOnly 쿠키로 토큰 설정
-      res.cookie('access_token', accessToken, {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
-        sameSite: 'lax',
-        maxAge: 15 * 60 * 1000, // 15분
-      });
-
-      res.cookie('refresh_token', refreshToken, {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
-        sameSite: 'lax',
-        maxAge: 7 * 24 * 60 * 60 * 1000, // 7일
-      });
-
-      res.status(HttpStatus.OK).json({
-        success: true,
-        message: 'Terms agreed successfully',
-      });
-    } catch (error) {
-      console.error('Terms agreement error:', error);
-      res.status(HttpStatus.BAD_REQUEST).json({
-        success: false,
-        message: 'Failed to agree terms',
-      });
-    }
-  }
-
   @Post('refresh')
   @Public()
   @ApiOperation({ summary: '토큰 갱신' })
@@ -217,45 +171,6 @@ export class AuthController {
       res.status(HttpStatus.UNAUTHORIZED).json({
         success: false,
         message: 'Failed to refresh token',
-      });
-    }
-  }
-
-  @Post('logout')
-  @ApiOperation({ summary: '로그아웃' })
-  @ApiResponse({ status: 200, description: '로그아웃 성공' })
-  async logout(
-    @Body('access_token') accessToken: string,
-    @Body('refresh_token') refreshToken: string,
-    @Res() res: Response,
-  ) {
-    try {
-      if (accessToken && refreshToken) {
-        // 토큰에서 JTI 추출하여 무효화
-        const accessPayload =
-          await this.tokenService.validateToken(accessToken);
-        const refreshPayload =
-          await this.tokenService.validateToken(refreshToken);
-
-        await this.tokenService.revokeTokens(
-          accessPayload.jti,
-          refreshPayload.jti,
-        );
-      }
-
-      // 쿠키 삭제
-      res.clearCookie('access_token');
-      res.clearCookie('refresh_token');
-
-      res.status(HttpStatus.OK).json({
-        success: true,
-        message: 'Logged out successfully',
-      });
-    } catch (error) {
-      console.error('Logout error:', error);
-      res.status(HttpStatus.OK).json({
-        success: true,
-        message: 'Logged out successfully',
       });
     }
   }
