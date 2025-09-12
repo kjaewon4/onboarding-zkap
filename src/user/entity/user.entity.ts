@@ -1,7 +1,7 @@
 import {
   Column,
   Entity,
-  PrimaryGeneratedColumn,
+  PrimaryColumn,
   CreateDateColumn,
   UpdateDateColumn,
   Unique,
@@ -10,7 +10,7 @@ import {
 @Entity('users', { schema: 'public' })
 @Unique(['provider', 'sub'])
 export class UserEntity {
-  @PrimaryGeneratedColumn('uuid')
+  @PrimaryColumn('varchar', { length: 26 })
   id: string;
 
   @Column()
@@ -19,7 +19,7 @@ export class UserEntity {
   @Column()
   provider: string;
 
-  @Column({ name: 'sub' })
+  @Column({ name: 'provider_sub' })
   sub: string;
 
   @Column({ name: 'term_agreed', default: false })
