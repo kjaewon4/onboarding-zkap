@@ -3,6 +3,8 @@ import { JwtService } from '@nestjs/jwt';
 import type Redis from 'ioredis';
 import { ConfigService } from '@nestjs/config';
 import { ulid } from 'ulid';
+import { UserService } from 'src/user/user.service';
+import { Response } from 'express';
 
 export interface TokenPayload {
   sub: string; // user id
@@ -13,8 +15,8 @@ export interface TokenPayload {
 }
 
 export interface TokenPair {
-  accessToken: string;
-  refreshToken: string;
+  jwtAccessToken: string;
+  jwtRefreshToken: string;
 }
 
 @Injectable()
@@ -33,29 +35,31 @@ export class TokenService {
     const accessJti = ulid();
     const refreshJti = ulid();
 
-    const accessTokenPayload: TokenPayload = {
+    const accessTokenPayload = {
       sub: userId,
       jti: accessJti,
       type: 'access',
       iat: now,
-      exp: now + this.getAccessTokenExpiry(),
     };
 
-    const refreshTokenPayload: TokenPayload = {
+    const refreshTokenPayload = {
       sub: userId,
       jti: refreshJti,
       type: 'refresh',
       iat: now,
-      exp: now + this.getRefreshTokenExpiry(),
     };
 
-    const accessToken = this.jwtService.sign(accessTokenPayload);
-    const refreshToken = this.jwtService.sign(refreshTokenPayload);
+    const accessToken = this.jwtService.sign(accessTokenPayload, {
+      expiresIn: this.getAccessTokenExpiry(),
+    });
+    const refreshToken = this.jwtService.sign(refreshTokenPayload, {
+      expiresIn: this.getRefreshTokenExpiry(),
+    });
 
     // Redis에 토큰 저장
     await this.storeTokens(accessJti, refreshJti, userId);
 
-    return { accessToken, refreshToken };
+    return { jwtAccessToken: accessToken, jwtRefreshToken: refreshToken };
   }
 
   /**
@@ -63,17 +67,17 @@ export class TokenService {
    */
   async validateToken(token: string): Promise<TokenPayload> {
     try {
-      const payload = this.jwtService.verify(token);
+      const payload: TokenPayload = this.jwtService.verify(token);
 
       // Redis에서 토큰 상태 확인
       const isAllowed = await this.redis.get(
-        `allow:${payload.type}:${payload.jti}`,
+        `jwt:${payload.type}:${payload.jti}`,
       );
       if (!isAllowed) {
         throw new UnauthorizedException('Token is not allowed');
       }
 
-      return payload as TokenPayload;
+      return payload;
     } catch {
       throw new UnauthorizedException('Invalid token');
     }
@@ -84,8 +88,8 @@ export class TokenService {
    */
   async revokeTokens(accessJti: string, refreshJti: string): Promise<void> {
     await Promise.all([
-      this.redis.del(`allow:access:${accessJti}`),
-      this.redis.del(`allow:refresh:${refreshJti}`),
+      this.redis.del(`jwt:access:${accessJti}`),
+      this.redis.del(`jwt:refresh:${refreshJti}`),
     ]);
   }
 
@@ -94,7 +98,7 @@ export class TokenService {
    */
   async refreshAccessToken(
     refreshToken: string,
-  ): Promise<{ accessToken: string }> {
+  ): Promise<{ jwtAccessToken: string }> {
     const payload = await this.validateToken(refreshToken);
 
     if (payload.type !== 'refresh') {
@@ -105,24 +109,25 @@ export class TokenService {
     const now = Math.floor(Date.now() / 1000);
     const newAccessJti = ulid();
 
-    const accessTokenPayload: TokenPayload = {
+    const accessTokenPayload = {
       sub: payload.sub,
       jti: newAccessJti,
       type: 'access',
       iat: now,
-      exp: now + this.getAccessTokenExpiry(),
     };
 
-    const accessToken = this.jwtService.sign(accessTokenPayload);
+    const accessToken = this.jwtService.sign(accessTokenPayload, {
+      expiresIn: this.getAccessTokenExpiry(),
+    });
 
     // 새로운 Access Token을 Redis에 저장
     await this.redis.setex(
-      `allow:access:${newAccessJti}`,
+      `jwt:access:${newAccessJti}`,
       this.getAccessTokenExpiry(),
       payload.sub,
     );
 
-    return { accessToken };
+    return { jwtAccessToken: accessToken };
   }
 
   /**
@@ -150,23 +155,38 @@ export class TokenService {
   }
 
   /**
-   * 사용자별 토큰 락 (동시 로그인 방지)
+   * JWT 토큰 발급 및 쿠키 설정
    */
-  async lockUserAuth(
-    provider: string,
-    sub: string,
-    ttl: number = 30,
-  ): Promise<boolean> {
-    const lockKey = `lock:auth:${provider}:${sub}`;
-    const result = await this.redis.set(lockKey, '1', 'EX', ttl, 'NX');
-    return result === 'OK';
-  }
+  async setJwtTokensAndRedirect(
+    userService: UserService,
+    userId: string,
+    res: Response,
+    redirectUrl: string,
+  ): Promise<void> {
+    // 사용자 정보 업데이트
+    await userService.updateLastLogin(userId);
 
-  /**
-   * 사용자별 토큰 락 해제
-   */
-  async unlockUserAuth(provider: string, sub: string): Promise<void> {
-    await this.redis.del(`lock:auth:${provider}:${sub}`);
+    // JWT 토큰 발급
+    const { jwtAccessToken, jwtRefreshToken } =
+      await this.generateTokenPair(userId);
+
+    // HttpOnly 쿠키로 토큰 설정
+    res.cookie('access_token', jwtAccessToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax',
+      maxAge: 15 * 60 * 1000, // 15분
+    });
+
+    res.cookie('refresh_token', jwtRefreshToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax',
+      maxAge: 7 * 24 * 60 * 60 * 1000, // 7일
+    });
+
+    // 리다이렉트
+    res.redirect(redirectUrl);
   }
 
   private async storeTokens(
@@ -178,8 +198,8 @@ export class TokenService {
     const refreshExpiry = this.getRefreshTokenExpiry();
 
     await Promise.all([
-      this.redis.setex(`allow:access:${accessJti}`, accessExpiry, userId),
-      this.redis.setex(`allow:refresh:${refreshJti}`, refreshExpiry, userId),
+      this.redis.setex(`jwt:access:${accessJti}`, accessExpiry, userId),
+      this.redis.setex(`jwt:refresh:${refreshJti}`, refreshExpiry, userId),
     ]);
   }
 

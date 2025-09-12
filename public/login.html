@@ -1,0 +1,288 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>로그인</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family:
+          -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+      }
+
+      .container {
+        background: white;
+        border-radius: 20px;
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+        max-width: 400px;
+        width: 100%;
+        overflow: hidden;
+      }
+
+      .header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 40px 30px;
+        text-align: center;
+      }
+
+      .header h1 {
+        font-size: 28px;
+        font-weight: 600;
+        margin-bottom: 10px;
+      }
+
+      .header p {
+        opacity: 0.9;
+        font-size: 16px;
+      }
+
+      .content {
+        padding: 40px 30px;
+      }
+
+      .login-section {
+        text-align: center;
+      }
+
+      .login-section h2 {
+        color: #333;
+        font-size: 24px;
+        margin-bottom: 15px;
+      }
+
+      .login-section p {
+        color: #666;
+        font-size: 16px;
+        margin-bottom: 30px;
+        line-height: 1.6;
+      }
+
+      .google-btn {
+        width: 100%;
+        padding: 15px 30px;
+        border: 2px solid #4285f4;
+        border-radius: 10px;
+        background: white;
+        color: #4285f4;
+        font-size: 16px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        text-decoration: none;
+        margin-bottom: 20px;
+      }
+
+      .google-btn:hover {
+        background: #4285f4;
+        color: white;
+        transform: translateY(-2px);
+        box-shadow: 0 10px 20px rgba(66, 133, 244, 0.3);
+      }
+
+      .google-btn::before {
+        content: '🔍';
+        margin-right: 10px;
+        font-size: 20px;
+      }
+
+      .features {
+        margin-top: 30px;
+        text-align: left;
+      }
+
+      .features h3 {
+        color: #333;
+        font-size: 18px;
+        margin-bottom: 15px;
+        text-align: center;
+      }
+
+      .feature-list {
+        list-style: none;
+        padding: 0;
+      }
+
+      .feature-list li {
+        color: #666;
+        font-size: 14px;
+        margin-bottom: 8px;
+        padding-left: 20px;
+        position: relative;
+      }
+
+      .feature-list li::before {
+        content: '✅';
+        position: absolute;
+        left: 0;
+      }
+
+      .error {
+        background: #f8d7da;
+        color: #721c24;
+        padding: 15px;
+        border-radius: 10px;
+        margin: 20px 0;
+        display: none;
+      }
+
+      .success {
+        background: #d4edda;
+        color: #155724;
+        padding: 15px;
+        border-radius: 10px;
+        margin: 20px 0;
+        display: none;
+      }
+
+      .loading {
+        display: none;
+        text-align: center;
+        margin: 20px 0;
+      }
+
+      .spinner {
+        border: 3px solid #f3f3f3;
+        border-top: 3px solid #667eea;
+        border-radius: 50%;
+        width: 30px;
+        height: 30px;
+        animation: spin 1s linear infinite;
+        margin: 0 auto 10px;
+      }
+
+      @keyframes spin {
+        0% {
+          transform: rotate(0deg);
+        }
+        100% {
+          transform: rotate(360deg);
+        }
+      }
+
+      .footer {
+        text-align: center;
+        margin-top: 30px;
+        padding-top: 20px;
+        border-top: 1px solid #e9ecef;
+      }
+
+      .footer p {
+        color: #999;
+        font-size: 12px;
+      }
+
+      @media (max-width: 600px) {
+        .container {
+          margin: 10px;
+          border-radius: 15px;
+        }
+
+        .content {
+          padding: 30px 20px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="header">
+        <h1>환영합니다!</h1>
+        <p>간편하게 로그인하고 시작하세요</p>
+      </div>
+
+      <div class="content">
+        <div class="error" id="errorMessage"></div>
+        <div class="success" id="successMessage"></div>
+
+        <div class="login-section">
+          <h2>로그인</h2>
+          <p>
+            Google 계정으로 간편하게 로그인하세요.<br />안전하고 빠른 인증을
+            제공합니다.
+          </p>
+
+          <a href="/api/auth/google" class="google-btn" id="googleLoginBtn">
+            Google로 로그인
+          </a>
+
+          <div class="loading" id="loading">
+            <div class="spinner"></div>
+            <p>로그인 처리 중입니다...</p>
+          </div>
+        </div>
+
+        <div class="features">
+          <h3>서비스 특징</h3>
+          <ul class="feature-list">
+            <li>Google OAuth 2.0 안전한 인증</li>
+            <li>개인정보 보호 및 암호화</li>
+            <li>간편한 소셜 로그인</li>
+            <li>모바일 친화적 디자인</li>
+            <li>빠른 로그인 처리</li>
+          </ul>
+        </div>
+
+        <div class="footer">
+          <p>
+            로그인 시 서비스 이용약관 및 개인정보 처리방침에 동의한 것으로
+            간주됩니다.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      // URL에서 에러 메시지 확인
+      const urlParams = new URLSearchParams(window.location.search);
+      const error = urlParams.get('error');
+
+      if (error === 'auth_failed') {
+        showError('로그인에 실패했습니다. 다시 시도해주세요.');
+      }
+
+      // Google 로그인 버튼 클릭 시 로딩 표시
+      document
+        .getElementById('googleLoginBtn')
+        .addEventListener('click', function () {
+          const loading = document.getElementById('loading');
+          loading.style.display = 'block';
+        });
+
+      // 에러 메시지 표시
+      function showError(message) {
+        const errorDiv = document.getElementById('errorMessage');
+        errorDiv.textContent = message;
+        errorDiv.style.display = 'block';
+
+        const successDiv = document.getElementById('successMessage');
+        successDiv.style.display = 'none';
+      }
+
+      // 성공 메시지 표시
+      function showSuccess(message) {
+        const successDiv = document.getElementById('successMessage');
+        successDiv.textContent = message;
+        successDiv.style.display = 'block';
+
+        const errorDiv = document.getElementById('errorMessage');
+        errorDiv.style.display = 'none';
+      }
+    </script>
+  </body>
+</html>

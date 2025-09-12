@@ -1,0 +1,419 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>대시보드</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family:
+          -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+      }
+
+      .container {
+        background: white;
+        border-radius: 20px;
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+        max-width: 800px;
+        width: 100%;
+        overflow: hidden;
+      }
+
+      .header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 30px;
+        text-align: center;
+      }
+
+      .header h1 {
+        font-size: 32px;
+        font-weight: 600;
+        margin-bottom: 10px;
+      }
+
+      .header p {
+        opacity: 0.9;
+        font-size: 16px;
+      }
+
+      .content {
+        padding: 40px;
+      }
+
+      .welcome-section {
+        text-align: center;
+        margin-bottom: 40px;
+      }
+
+      .welcome-section h2 {
+        color: #333;
+        font-size: 24px;
+        margin-bottom: 15px;
+      }
+
+      .welcome-section p {
+        color: #666;
+        font-size: 16px;
+        line-height: 1.6;
+      }
+
+      .user-info {
+        background: #f8f9fa;
+        border-radius: 15px;
+        padding: 25px;
+        margin-bottom: 30px;
+        border: 1px solid #e9ecef;
+      }
+
+      .user-info h3 {
+        color: #333;
+        font-size: 20px;
+        margin-bottom: 20px;
+        display: flex;
+        align-items: center;
+      }
+
+      .user-info h3::before {
+        content: '👤';
+        margin-right: 10px;
+      }
+
+      .info-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 20px;
+      }
+
+      .info-item {
+        background: white;
+        padding: 15px;
+        border-radius: 10px;
+        border: 1px solid #e9ecef;
+      }
+
+      .info-label {
+        font-weight: 600;
+        color: #666;
+        font-size: 14px;
+        margin-bottom: 5px;
+      }
+
+      .info-value {
+        color: #333;
+        font-size: 16px;
+      }
+
+      .actions {
+        display: flex;
+        gap: 15px;
+        justify-content: center;
+        flex-wrap: wrap;
+      }
+
+      .btn {
+        padding: 15px 30px;
+        border: none;
+        border-radius: 10px;
+        font-size: 16px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        display: inline-block;
+        text-align: center;
+      }
+
+      .btn-primary {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+      }
+
+      .btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+      }
+
+      .btn-secondary {
+        background: #6c757d;
+        color: white;
+      }
+
+      .btn-secondary:hover {
+        background: #5a6268;
+        transform: translateY(-2px);
+      }
+
+      .btn-danger {
+        background: #dc3545;
+        color: white;
+      }
+
+      .btn-danger:hover {
+        background: #c82333;
+        transform: translateY(-2px);
+      }
+
+      .loading {
+        display: none;
+        text-align: center;
+        margin: 20px 0;
+      }
+
+      .spinner {
+        border: 3px solid #f3f3f3;
+        border-top: 3px solid #667eea;
+        border-radius: 50%;
+        width: 30px;
+        height: 30px;
+        animation: spin 1s linear infinite;
+        margin: 0 auto 10px;
+      }
+
+      @keyframes spin {
+        0% {
+          transform: rotate(0deg);
+        }
+        100% {
+          transform: rotate(360deg);
+        }
+      }
+
+      .error {
+        background: #f8d7da;
+        color: #721c24;
+        padding: 15px;
+        border-radius: 10px;
+        margin: 20px 0;
+        display: none;
+      }
+
+      .success {
+        background: #d4edda;
+        color: #155724;
+        padding: 15px;
+        border-radius: 10px;
+        margin: 20px 0;
+        display: none;
+      }
+
+      .profile-image {
+        width: 80px;
+        height: 80px;
+        border-radius: 50%;
+        margin: 0 auto 20px;
+        display: block;
+        object-fit: cover;
+        border: 3px solid #667eea;
+      }
+
+      @media (max-width: 600px) {
+        .container {
+          margin: 10px;
+          border-radius: 15px;
+        }
+
+        .content {
+          padding: 20px;
+        }
+
+        .actions {
+          flex-direction: column;
+        }
+
+        .info-grid {
+          grid-template-columns: 1fr;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="header">
+        <h1>환영합니다!</h1>
+        <p>성공적으로 로그인되었습니다</p>
+      </div>
+
+      <div class="content">
+        <div class="error" id="errorMessage"></div>
+        <div class="success" id="successMessage"></div>
+
+        <div class="welcome-section">
+          <h2>안녕하세요!</h2>
+          <p>
+            소셜 로그인이 성공적으로 완료되었습니다.<br />아래에서 사용자 정보를
+            확인하고 서비스를 이용해보세요.
+          </p>
+        </div>
+
+        <div class="user-info">
+          <h3>사용자 정보</h3>
+          <div class="info-grid">
+            <div class="info-item">
+              <div class="info-label">이메일</div>
+              <div class="info-value" id="userEmail">로딩 중...</div>
+            </div>
+            <div class="info-item">
+              <div class="info-label">이름</div>
+              <div class="info-value" id="userName">로딩 중...</div>
+            </div>
+            <div class="info-item">
+              <div class="info-label">가입일</div>
+              <div class="info-value" id="userCreatedAt">로딩 중...</div>
+            </div>
+            <div class="info-item">
+              <div class="info-label">마지막 로그인</div>
+              <div class="info-value" id="userLastLogin">로딩 중...</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="actions">
+          <button class="btn btn-primary" onclick="refreshProfile()">
+            🔄 정보 새로고침
+          </button>
+          <button class="btn btn-secondary" onclick="goToTerms()">
+            📋 약관 보기
+          </button>
+          <button class="btn btn-danger" onclick="logout()">🚪 로그아웃</button>
+        </div>
+
+        <div class="loading" id="loading">
+          <div class="spinner"></div>
+          <p>처리 중입니다...</p>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      // 페이지 로드 시 사용자 정보 가져오기
+      document.addEventListener('DOMContentLoaded', function () {
+        loadUserProfile();
+      });
+
+      // 사용자 프로필 정보 로드
+      async function loadUserProfile() {
+        const loading = document.getElementById('loading');
+
+        try {
+          loading.style.display = 'block';
+
+          const response = await fetch('/api/user/profile', {
+            method: 'GET',
+            credentials: 'include',
+          });
+
+          if (response.ok) {
+            const userData = await response.json();
+            displayUserInfo(userData.data);
+          } else {
+            if (response.status === 401) {
+              showError('로그인이 필요합니다.');
+              setTimeout(() => {
+                window.location.href = '/login.html';
+              }, 2000);
+            } else {
+              showError('사용자 정보를 불러올 수 없습니다.');
+            }
+          }
+        } catch (error) {
+          console.error('Error:', error);
+          showError('네트워크 오류가 발생했습니다.');
+        } finally {
+          loading.style.display = 'none';
+        }
+      }
+
+      // 사용자 정보 표시
+      function displayUserInfo(user) {
+        document.getElementById('userEmail').textContent =
+          user.email || '정보 없음';
+        document.getElementById('userName').textContent =
+          user.name || '정보 없음';
+        document.getElementById('userCreatedAt').textContent = user.createdAt
+          ? new Date(user.createdAt).toLocaleDateString('ko-KR')
+          : '정보 없음';
+        document.getElementById('userLastLogin').textContent = user.updatedAt
+          ? new Date(user.updatedAt).toLocaleDateString('ko-KR')
+          : '정보 없음';
+      }
+
+      // 프로필 새로고침
+      function refreshProfile() {
+        loadUserProfile();
+      }
+
+      // 약관 페이지로 이동
+      function goToTerms() {
+        window.location.href = '/terms.html';
+      }
+
+      // 로그아웃
+      async function logout() {
+        const loading = document.getElementById('loading');
+
+        try {
+          loading.style.display = 'block';
+
+          const response = await fetch('/api/user/logout', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            credentials: 'include',
+            body: JSON.stringify({
+              access_token: 'dummy', // 실제로는 쿠키에서 처리
+              refresh_token: 'dummy',
+            }),
+          });
+
+          if (response.ok) {
+            showSuccess('로그아웃되었습니다.');
+            setTimeout(() => {
+              window.location.href = '/login.html';
+            }, 2000);
+          } else {
+            showError('로그아웃 처리 중 오류가 발생했습니다.');
+          }
+        } catch (error) {
+          console.error('Error:', error);
+          showError('네트워크 오류가 발생했습니다.');
+        } finally {
+          loading.style.display = 'none';
+        }
+      }
+
+      // 에러 메시지 표시
+      function showError(message) {
+        const errorDiv = document.getElementById('errorMessage');
+        errorDiv.textContent = message;
+        errorDiv.style.display = 'block';
+
+        const successDiv = document.getElementById('successMessage');
+        successDiv.style.display = 'none';
+      }
+
+      // 성공 메시지 표시
+      function showSuccess(message) {
+        const successDiv = document.getElementById('successMessage');
+        successDiv.textContent = message;
+        successDiv.style.display = 'block';
+
+        const errorDiv = document.getElementById('errorMessage');
+        errorDiv.style.display = 'none';
+      }
+    </script>
+  </body>
+</html>

@@ -3,14 +3,37 @@ import { AppModule } from './app.module';
 import { setupSwagger } from './config/swagger/swagger';
 import helmet from 'helmet';
 import cookieParser from 'cookie-parser';
+import session from 'express-session';
+import { join } from 'path';
+import { NestExpressApplication } from '@nestjs/platform-express';
 
 async function bootstrap() {
   console.log('애플리케이션 시작 중...');
 
-  const app = await NestFactory.create(AppModule);
+  const app = await NestFactory.create<NestExpressApplication>(AppModule);
   app.setGlobalPrefix('api');
+
+  // 정적 파일 서빙 설정
+  app.useStaticAssets(join(__dirname, '..', 'public'));
+  app.setBaseViewsDir(join(__dirname, '..', 'public'));
+
   app.use(helmet());
   app.use(cookieParser());
+
+  // 세션 미들웨어 추가
+  app.use(
+    session({
+      secret: process.env.SESSION_SECRET || 'dev-secret-key',
+      resave: false,
+      saveUninitialized: false,
+      cookie: {
+        secure: process.env.NODE_ENV === 'production',
+        maxAge: 10 * 60 * 1000, // 10분
+        httpOnly: true,
+      },
+    }),
+  );
+
   app.enableCors({
     origin: process.env.FRONTEND_URL || 'http://localhost:3001',
     credentials: true,

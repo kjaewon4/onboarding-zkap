@@ -41,7 +41,7 @@ export class GoogleAuthService {
   }
 
   /**
-   * Authorization Code를 Access Token으로 교환
+   * Authorization Code를 Access Token으로 교환 (idToken 포함)
    */
   async exchangeCodeForTokens(code: string): Promise<{
     accessToken: string;
@@ -55,6 +55,10 @@ export class GoogleAuthService {
         throw new UnauthorizedException('Failed to get tokens from Google');
       }
 
+      // OAuth2Client에 자격 증명 설정 (클라이언트 객체에 토큰을 저장해서 이후 API 호출 시 자동 인증되도록 설정)
+      // 토큰 만료되면 자동으로 refresh_token을 사용해서 새 access_token을 발급
+      this.oauth2Client.setCredentials(tokens);
+
       return {
         accessToken: tokens.access_token,
         idToken: tokens.id_token,
@@ -66,7 +70,7 @@ export class GoogleAuthService {
   }
 
   /**
-   * ID Token 검증 및 사용자 정보 추출
+   * ID Token 검증(Nonce 검증) 및 사용자 정보 추출
    */
   async verifyIdToken(idToken: string, nonce: string): Promise<GoogleUserInfo> {
     try {
