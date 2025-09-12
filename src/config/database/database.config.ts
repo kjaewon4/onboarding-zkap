@@ -2,6 +2,7 @@ import { SnakeNamingStrategy } from 'typeorm-naming-strategies';
 import { TypeOrmModuleOptions } from '@nestjs/typeorm';
 import { ConfigService } from '@nestjs/config';
 import { DataSource, DataSourceOptions } from 'typeorm';
+import { UserEntity } from '../../user/entity/user.entity';
 
 export const databaseConfig = (
   configService?: ConfigService,
@@ -32,7 +33,7 @@ export const databaseConfig = (
       configService?.get<string>('db.database') ||
       process.env.DB_DATABASE ||
       'onboarding_zkap',
-    entities: ['dist/**/entities/*.entity{.js,.ts}'],
+    entities: [UserEntity],
     migrations: ['dist/migration/*{.js,.ts}'],
     migrationsTableName: 'migration',
     synchronize: false,

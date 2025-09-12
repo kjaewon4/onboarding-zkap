@@ -68,29 +68,13 @@ export class UserController {
       // 사용자 약관 동의 처리
       await this.userService.agreeTerms(userId);
 
-      // JWT 토큰 발급
-      const { accessToken, refreshToken } =
-        await this.tokenService.generateTokenPair(userId);
-
-      // HttpOnly 쿠키로 토큰 설정
-      res.cookie('access_token', accessToken, {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
-        sameSite: 'lax',
-        maxAge: 15 * 60 * 1000, // 15분
-      });
-
-      res.cookie('refresh_token', refreshToken, {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
-        sameSite: 'lax',
-        maxAge: 7 * 24 * 60 * 60 * 1000, // 7일
-      });
-
-      res.status(HttpStatus.OK).json({
-        success: true,
-        message: 'Terms agreed successfully',
-      });
+      // JWT 토큰 발급 및 대시보드 리다이렉트
+      await this.tokenService.setJwtTokensAndRedirect(
+        this.userService,
+        userId,
+        res,
+        `${process.env.FRONTEND_URL}/dashboard.html`,
+      );
     } catch (error) {
       console.error('Terms agreement error:', error);
       res.status(HttpStatus.BAD_REQUEST).json({

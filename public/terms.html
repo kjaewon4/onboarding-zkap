@@ -1,0 +1,417 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>서비스 이용약관 동의</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family:
+          -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+      }
+
+      .container {
+        background: white;
+        border-radius: 20px;
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+        max-width: 600px;
+        width: 100%;
+        overflow: hidden;
+      }
+
+      .header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 30px;
+        text-align: center;
+      }
+
+      .header h1 {
+        font-size: 28px;
+        font-weight: 600;
+        margin-bottom: 10px;
+      }
+
+      .header p {
+        opacity: 0.9;
+        font-size: 16px;
+      }
+
+      .content {
+        padding: 40px;
+      }
+
+      .terms-section {
+        margin-bottom: 30px;
+      }
+
+      .terms-section h2 {
+        color: #333;
+        font-size: 20px;
+        margin-bottom: 15px;
+        border-bottom: 2px solid #667eea;
+        padding-bottom: 10px;
+      }
+
+      .terms-text {
+        background: #f8f9fa;
+        border: 1px solid #e9ecef;
+        border-radius: 10px;
+        padding: 20px;
+        max-height: 200px;
+        overflow-y: auto;
+        font-size: 14px;
+        line-height: 1.6;
+        color: #555;
+      }
+
+      .checkbox-container {
+        display: flex;
+        align-items: center;
+        margin: 20px 0;
+        padding: 15px;
+        background: #f8f9fa;
+        border-radius: 10px;
+        border: 2px solid #e9ecef;
+        transition: all 0.3s ease;
+      }
+
+      .checkbox-container:hover {
+        border-color: #667eea;
+      }
+
+      .checkbox-container.checked {
+        border-color: #667eea;
+        background: #f0f4ff;
+      }
+
+      .checkbox-container input[type='checkbox'] {
+        width: 20px;
+        height: 20px;
+        margin-right: 15px;
+        cursor: pointer;
+      }
+
+      .checkbox-container label {
+        font-size: 16px;
+        font-weight: 500;
+        color: #333;
+        cursor: pointer;
+        flex: 1;
+      }
+
+      .button-container {
+        display: flex;
+        gap: 15px;
+        margin-top: 30px;
+      }
+
+      .btn {
+        flex: 1;
+        padding: 15px 30px;
+        border: none;
+        border-radius: 10px;
+        font-size: 16px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+      }
+
+      .btn-primary {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+      }
+
+      .btn-primary:hover:not(:disabled) {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+      }
+
+      .btn-primary:disabled {
+        background: #ccc;
+        cursor: not-allowed;
+        transform: none;
+        box-shadow: none;
+      }
+
+      .btn-secondary {
+        background: #6c757d;
+        color: white;
+      }
+
+      .btn-secondary:hover {
+        background: #5a6268;
+        transform: translateY(-2px);
+      }
+
+      .loading {
+        display: none;
+        text-align: center;
+        margin-top: 20px;
+      }
+
+      .spinner {
+        border: 3px solid #f3f3f3;
+        border-top: 3px solid #667eea;
+        border-radius: 50%;
+        width: 30px;
+        height: 30px;
+        animation: spin 1s linear infinite;
+        margin: 0 auto 10px;
+      }
+
+      @keyframes spin {
+        0% {
+          transform: rotate(0deg);
+        }
+        100% {
+          transform: rotate(360deg);
+        }
+      }
+
+      .error {
+        background: #f8d7da;
+        color: #721c24;
+        padding: 15px;
+        border-radius: 10px;
+        margin: 20px 0;
+        display: none;
+      }
+
+      .success {
+        background: #d4edda;
+        color: #155724;
+        padding: 15px;
+        border-radius: 10px;
+        margin: 20px 0;
+        display: none;
+      }
+
+      @media (max-width: 600px) {
+        .container {
+          margin: 10px;
+          border-radius: 15px;
+        }
+
+        .content {
+          padding: 20px;
+        }
+
+        .button-container {
+          flex-direction: column;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="header">
+        <h1>환영합니다!</h1>
+        <p>서비스 이용을 위해 약관에 동의해주세요</p>
+      </div>
+
+      <div class="content">
+        <div class="error" id="errorMessage"></div>
+        <div class="success" id="successMessage"></div>
+
+        <div class="terms-section">
+          <h2>서비스 이용약관</h2>
+          <div class="terms-text">
+            <h3>제1조 (목적)</h3>
+            <p>
+              본 약관은 사용자가 제공하는 서비스(이하 "서비스")를 이용함에 있어
+              사용자와 서비스 제공자의 권리, 의무 및 책임사항을 규정함을
+              목적으로 합니다.
+            </p>
+
+            <h3>제2조 (정의)</h3>
+            <p>
+              1. "서비스"란 사용자가 제공하는 모든 서비스를 의미합니다.<br />
+              2. "사용자"란 서비스에 접속하여 본 약관에 따라 서비스를 이용하는
+              회원을 의미합니다.
+            </p>
+
+            <h3>제3조 (약관의 효력 및 변경)</h3>
+            <p>
+              1. 본 약관은 서비스 화면에 게시하거나 기타의 방법으로 사용자에게
+              공지함으로써 효력을 발생합니다.<br />
+              2. 서비스는 합리적인 사유가 발생할 경우에는 본 약관을 변경할 수
+              있으며, 약관이 변경되는 경우 변경된 약관의 내용과 시행일을 정하여,
+              시행일로부터 최소 7일 이전에 공지합니다.
+            </p>
+
+            <h3>제4조 (서비스의 제공)</h3>
+            <p>
+              1. 서비스는 연중무휴, 1일 24시간 제공함을 원칙으로 합니다.<br />
+              2. 서비스는 컴퓨터 등 정보통신설비의 보수점검, 교체 및 고장,
+              통신의 두절 등의 사유가 발생한 경우에는 서비스의 제공을 일시적으로
+              중단할 수 있습니다.
+            </p>
+
+            <h3>제5조 (개인정보보호)</h3>
+            <p>
+              서비스는 사용자의 개인정보를 보호하기 위해 개인정보보호법에 따라
+              개인정보처리방침을 수립하여 시행하고 있습니다.
+            </p>
+          </div>
+        </div>
+
+        <div class="terms-section">
+          <h2>개인정보 처리방침</h2>
+          <div class="terms-text">
+            <h3>1. 개인정보의 수집 및 이용목적</h3>
+            <p>
+              서비스는 다음의 목적을 위하여 개인정보를 처리합니다:<br />
+              - 서비스 제공 및 계약 이행<br />
+              - 회원 식별 및 본인 확인<br />
+              - 고객 상담 및 불만 처리
+            </p>
+
+            <h3>2. 수집하는 개인정보의 항목</h3>
+            <p>
+              - 필수항목: 이메일 주소, 이름<br />
+              - 선택항목: 프로필 사진
+            </p>
+
+            <h3>3. 개인정보의 보유 및 이용기간</h3>
+            <p>
+              서비스는 개인정보 수집 및 이용목적이 달성된 후에는 해당 정보를
+              지체없이 파기합니다.
+            </p>
+          </div>
+        </div>
+
+        <div class="checkbox-container" id="termsCheckbox">
+          <input type="checkbox" id="agreeTerms" />
+          <label for="agreeTerms"
+            >위 서비스 이용약관 및 개인정보 처리방침에 동의합니다.</label
+          >
+        </div>
+
+        <div class="button-container">
+          <button class="btn btn-secondary" onclick="goBack()">취소</button>
+          <button
+            class="btn btn-primary"
+            id="agreeButton"
+            onclick="agreeTerms()"
+            disabled
+          >
+            동의하고 계속하기
+          </button>
+        </div>
+
+        <div class="loading" id="loading">
+          <div class="spinner"></div>
+          <p>처리 중입니다...</p>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      // URL에서 user_id 추출
+      const urlParams = new URLSearchParams(window.location.search);
+      const userId = urlParams.get('user_id');
+
+      if (!userId) {
+        showError('잘못된 접근입니다.');
+      }
+
+      // 체크박스 상태에 따른 버튼 활성화/비활성화
+      document
+        .getElementById('agreeTerms')
+        .addEventListener('change', function () {
+          const agreeButton = document.getElementById('agreeButton');
+          const checkboxContainer = document.getElementById('termsCheckbox');
+
+          if (this.checked) {
+            agreeButton.disabled = false;
+            checkboxContainer.classList.add('checked');
+          } else {
+            agreeButton.disabled = true;
+            checkboxContainer.classList.remove('checked');
+          }
+        });
+
+      // 약관 동의 처리
+      async function agreeTerms() {
+        if (!userId) {
+          showError('잘못된 접근입니다.');
+          return;
+        }
+
+        const loading = document.getElementById('loading');
+        const agreeButton = document.getElementById('agreeButton');
+
+        try {
+          loading.style.display = 'block';
+          agreeButton.disabled = true;
+
+          const response = await fetch('/api/user/terms', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              user_id: userId,
+            }),
+          });
+
+          if (response.ok) {
+            showSuccess('약관 동의가 완료되었습니다!');
+            setTimeout(() => {
+              window.location.href = '/dashboard.html';
+            }, 2000);
+          } else {
+            const errorData = await response.json();
+            showError(
+              errorData.message || '약관 동의 처리 중 오류가 발생했습니다.',
+            );
+          }
+        } catch (error) {
+          console.error('Error:', error);
+          showError('네트워크 오류가 발생했습니다. 다시 시도해주세요.');
+        } finally {
+          loading.style.display = 'none';
+          agreeButton.disabled = false;
+        }
+      }
+
+      // 뒤로가기
+      function goBack() {
+        window.location.href = '/login.html';
+      }
+
+      // 에러 메시지 표시
+      function showError(message) {
+        const errorDiv = document.getElementById('errorMessage');
+        errorDiv.textContent = message;
+        errorDiv.style.display = 'block';
+
+        const successDiv = document.getElementById('successMessage');
+        successDiv.style.display = 'none';
+      }
+
+      // 성공 메시지 표시
+      function showSuccess(message) {
+        const successDiv = document.getElementById('successMessage');
+        successDiv.textContent = message;
+        successDiv.style.display = 'block';
+
+        const errorDiv = document.getElementById('errorMessage');
+        errorDiv.style.display = 'none';
+      }
+    </script>
+  </body>
+</html>

@@ -80,7 +80,7 @@ export class HealthController {
     try {
       // 실제 Redis 연결 체크
       const client = redis.createClient({
-        url: 'redis://localhost:6379',
+        url: `redis://localhost:${process.env.REDIS_PORT}`,
       });
 
       await client.connect(); // 연결 시도
