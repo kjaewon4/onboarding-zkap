@@ -129,7 +129,7 @@ async function testSwaggerDocumentation() {
   logStep('3', 'Swagger 문서 확인');
 
   try {
-    const response = await axios.get(`${BASE_URL}/api-docs`);
+    const response = await axios.get(`${BASE_URL}/docs`);
     logSuccess('Swagger 문서에 접근할 수 있습니다.');
     logInfo(`Swagger URL: ${BASE_URL}/api-docs`);
     return true;
@@ -144,9 +144,9 @@ async function testAuthEndpoints() {
 
   const endpoints = [
     { method: 'GET', path: '/auth/google', name: 'Google OAuth 시작' },
-    { method: 'POST', path: '/auth/terms', name: '약관 동의' },
+    { method: 'POST', path: '/user/terms', name: '약관 동의' },
     { method: 'POST', path: '/auth/refresh', name: '토큰 갱신' },
-    { method: 'POST', path: '/auth/logout', name: '로그아웃' },
+    { method: 'POST', path: '/user/logout', name: '로그아웃' },
   ];
 
   let successCount = 0;

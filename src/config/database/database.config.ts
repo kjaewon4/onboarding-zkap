@@ -1,8 +1,21 @@
+import 'reflect-metadata';
+import * as dotenv from 'dotenv';
+import * as path from 'path';
 import { SnakeNamingStrategy } from 'typeorm-naming-strategies';
 import { TypeOrmModuleOptions } from '@nestjs/typeorm';
 import { ConfigService } from '@nestjs/config';
 import { DataSource, DataSourceOptions } from 'typeorm';
 import { UserEntity } from '../../user/entity/user.entity';
+
+// 환경변수 로드
+const nodeEnv = process.env.NODE_ENV || 'development';
+const envFile =
+  nodeEnv === 'local'
+    ? '.env.local'
+    : nodeEnv === 'development'
+      ? '.env.development'
+      : '.env.production';
+dotenv.config({ path: path.resolve(process.cwd(), envFile) });
 
 export const databaseConfig = (
   configService?: ConfigService,
