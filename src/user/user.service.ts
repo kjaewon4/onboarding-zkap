@@ -1,6 +1,7 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { UserRepository } from './repository/user.repository';
 import { UserEntity } from './entity/user.entity';
+import { ulid } from 'ulid';
 
 export interface CreateUserDto {
   email: string;
@@ -29,6 +30,7 @@ export class UserService {
    */
   async create(createUserDto: CreateUserDto): Promise<UserEntity> {
     const user = new UserEntity();
+    user.id = ulid();
     user.email = createUserDto.email;
     user.provider = createUserDto.provider;
     user.sub = createUserDto.sub;

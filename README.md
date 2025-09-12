@@ -34,12 +34,12 @@ npm install
 
 ### 2. 환경 변수 설정
 
-프로젝트 루트에 `.env` 파일을 생성하고 다음 내용을 추가하세요:
+프로젝트 루트에 `.env.local` 파일을 생성하고 다음 내용을 추가하세요:
 
 ```bash
 # 애플리케이션 설정
 NODE_ENV=development
-PORT=3000
+PORT=3001
 IS_SWAGGER_ENABLED=true
 
 # 프론트엔드 URL
@@ -52,8 +52,9 @@ JWT_REFRESH_EXPIRES_IN=7d
 
 # Google OAuth 설정 (실제 값으로 교체 필요)
 GOOGLE_CLIENT_ID=your_google_client_id_here
+GOOGLE_ISS=https://accounts.google.com
 GOOGLE_CLIENT_SECRET=your_google_client_secret_here
-GOOGLE_REDIRECT_URI=http://localhost:3000/api/auth/callback
+GOOGLE_REDIRECT_URI=http://localhost:3001/api/auth/callback
 
 # 데이터베이스 설정
 DB_HOST=localhost
@@ -64,8 +65,9 @@ DB_DATABASE=onboarding_zkap
 
 # Redis 설정
 REDIS_HOST=localhost
-REDIS_PORT=6379
+REDIS_PORT=6380
 REDIS_PASSWORD=password
+REDIS_DB=zkap
 ```
 
 ### 3. Google OAuth 설정
@@ -78,13 +80,13 @@ REDIS_PASSWORD=password
 6. 승인된 리디렉션 URI에 `http://localhost:3000/api/auth/callback` 추가 (환경변수와 일치)
 7. 클라이언트 ID와 클라이언트 보안 비밀번호를 `.env` 파일에 설정
 
-## Docker를 사용한 실행
+## Docker를 사용한 실행 (local 기준)
 
 ### 1. 데이터베이스 및 Redis 실행
 
 ```bash
 # Docker Compose로 PostgreSQL과 Redis 실행
-docker-compose up -d
+docker-compose --env-file .env.local up -d
 
 # 실행 상태 확인
 docker-compose ps
@@ -103,8 +105,8 @@ yarn run db:local:migrate:show
 ### 3. 애플리케이션 실행
 
 ```bash
-# 개발 모드로 실행
-yarn run start:dev
+# local 모드로 실행
+yarn run start:local
 
 # 또는 프로덕션 모드로 실행
 yarn run build
@@ -118,12 +120,6 @@ yarn run start:prod
 ```bash
 # 소셜 로그인 테스트
 yarn run test:social-login
-
-# 단위 테스트 (미제공)
-yarn run test
-
-# E2E 테스트
-yarn run test:e2e
 
 # 테스트 커버리지
 yarn run test:cov
@@ -158,9 +154,9 @@ yarn run test:cov
 | ------ | -------------------- | ----------------- |
 | GET    | `/api/auth/google`   | Google OAuth 시작 |
 | GET    | `/api/auth/callback` | Google OAuth 콜백 |
-| POST   | `/api/auth/terms`    | 약관 동의         |
+| POST   | `/api/user/terms`    | 약관 동의         |
 | POST   | `/api/auth/refresh`  | 토큰 갱신         |
-| POST   | `/api/auth/logout`   | 로그아웃          |
+| POST   | `/api/user/logout`   | 로그아웃          |
 
 ### 기타
 
@@ -210,7 +206,7 @@ yarn run db:local:migrate:show
    - 데이터베이스 연결 정보 확인
 
 4. **환경 변수 오류**
-   - `.env` 파일이 프로젝트 루트에 있는지 확인
+   - `.env.local` 파일이 프로젝트 루트에 있는지 확인
    - 모든 필수 환경 변수가 설정되었는지 확인
 
 ### 로그 확인
