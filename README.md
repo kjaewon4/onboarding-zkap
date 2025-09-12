@@ -86,6 +86,7 @@ REDIS_DB=zkap
 
 ```bash
 # Docker Compose로 PostgreSQL과 Redis 실행
+cd docker 
 docker-compose --env-file .env.local up -d
 
 # 실행 상태 확인
