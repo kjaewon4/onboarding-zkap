@@ -7,9 +7,8 @@ import { UserController } from './user.controller';
 import { UserService } from './user.service';
 import { UserRepository } from './repository/user.repository';
 import { AuthModule } from '../auth/auth.module';
-import { TokenService } from '../auth/services/token.service';
 import { RedisConfigModule } from '../config/redis.module';
-import authConfig from '../config/auth.config';
+import authConfig from '../config/auth/auth.config';
 
 @Module({
   imports: [
@@ -29,7 +28,7 @@ import authConfig from '../config/auth.config';
     forwardRef(() => AuthModule),
   ],
   controllers: [UserController],
-  providers: [UserRepository, UserService, TokenService],
+  providers: [UserRepository, UserService],
   exports: [UserService],
 })
 export class UserModule {}

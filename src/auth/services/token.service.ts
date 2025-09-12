@@ -67,7 +67,7 @@ export class TokenService {
    */
   async validateToken(token: string): Promise<TokenPayload> {
     try {
-      const payload = this.jwtService.verify(token);
+      const payload: TokenPayload = this.jwtService.verify(token);
 
       // Redis에서 토큰 상태 확인
       const isAllowed = await this.redis.get(
@@ -77,7 +77,7 @@ export class TokenService {
         throw new UnauthorizedException('Token is not allowed');
       }
 
-      return payload as TokenPayload;
+      return payload;
     } catch {
       throw new UnauthorizedException('Invalid token');
     }
@@ -187,26 +187,6 @@ export class TokenService {
 
     // 리다이렉트
     res.redirect(redirectUrl);
-  }
-
-  /**
-   * 사용자별 토큰 락 (동시 로그인 방지)
-   */
-  async lockUserAuth(
-    provider: string,
-    sub: string,
-    ttl: number = 30,
-  ): Promise<boolean> {
-    const lockKey = `lock:auth:${provider}:${sub}`;
-    const result = await this.redis.set(lockKey, '1', 'EX', ttl, 'NX');
-    return result === 'OK';
-  }
-
-  /**
-   * 사용자별 토큰 락 해제
-   */
-  async unlockUserAuth(provider: string, sub: string): Promise<void> {
-    await this.redis.del(`lock:auth:${provider}:${sub}`);
   }
 
   private async storeTokens(

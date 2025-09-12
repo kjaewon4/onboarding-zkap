@@ -2,14 +2,12 @@ import {
   Controller,
   Get,
   Post,
-  UseGuards,
   Body,
   Res,
   HttpStatus,
   UnauthorizedException,
 } from '@nestjs/common';
 import { UserService } from './user.service';
-import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
 import { Public } from '../auth/decorators/public.decorator';
 import { TokenService } from '../auth/services/token.service';
@@ -24,7 +22,6 @@ import {
 
 @ApiTags('user')
 @Controller('user')
-@UseGuards(JwtAuthGuard)
 export class UserController {
   constructor(
     private readonly userService: UserService,
