@@ -140,6 +140,7 @@ yarn run test:cov
    ```
    http://localhost:3000/api/docs
    ```
+   예) google playground에서 'id token' 발급 -> 우측 'Authorize' 클릭 -> 토큰 입력 -> 프로필 조회 테스트
 
 3. **헬스 체크**
    ```
